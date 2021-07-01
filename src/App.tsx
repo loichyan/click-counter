@@ -10,6 +10,7 @@ import {
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@material-ui/lab";
 import { Add, ClearAll } from "@material-ui/icons";
 import { ClickCounter, ClickCounterProps } from "./ClickCounter";
+import Immutable from "immutable";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -23,7 +24,7 @@ const styles = (theme: Theme) =>
 export interface AppProps extends WithStyles<typeof styles> {}
 
 export interface AppState {
-  counters: Map<
+  counters: Immutable.Map<
     number,
     React.ComponentElement<ClickCounterProps, ClickCounter>
   >;
@@ -36,7 +37,7 @@ export class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      counters: new Map(),
+      counters: Immutable.Map(),
       open: false,
     };
 
@@ -79,9 +80,7 @@ export class App extends React.Component<AppProps, AppState> {
           <SpeedDialAction
             tooltipTitle="Clear"
             icon={<ClearAll />}
-            onClick={() => {
-              this.clearCounters();
-            }}
+            onClick={this.clearCounters}
           />
         </SpeedDial>
       </Container>
@@ -91,31 +90,29 @@ export class App extends React.Component<AppProps, AppState> {
   addCounter() {
     this.setState((state) => {
       this.counterNum += 1;
-      const counters = new Map(state.counters);
-      counters.set(
-        this.counterNum,
-        <ClickCounter
-          idx={this.counterNum}
-          removeCounter={this.removeCounter}
-        />
-      );
-      return { counters };
+      return {
+        counters: state.counters.set(
+          this.counterNum,
+          <ClickCounter
+            idx={this.counterNum}
+            removeCounter={this.removeCounter}
+          />
+        ),
+      };
     });
   }
 
   removeCounter(idx: number) {
     this.setState((state) => {
-      const counters = new Map(state.counters);
-      counters.delete(idx);
-      return { counters };
+      return { counters: state.counters.delete(idx) };
     });
   }
 
   clearCounters() {
     this.setState(
-      () => {
+      (state) => {
         this.counterNum = 0;
-        return { counters: new Map() };
+        return { counters: state.counters.clear() };
       },
       () => {
         this.addCounter();

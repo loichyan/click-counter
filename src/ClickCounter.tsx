@@ -17,17 +17,18 @@ import {
   Button,
 } from "@material-ui/core";
 import { Backspace, Settings } from "@material-ui/icons";
+import Immutable from "immutable";
 import React from "react";
 import dateFormat from "dateformat";
 
 export interface ClickCounterProps {
   idx: number;
-  removeCounter: (idx: number) => void;
+  removeCounter(idx: number): void;
 }
 
 export interface ClickCounterState {
-  title: string | undefined;
-  records: Array<Date>;
+  title?: string;
+  records: Immutable.List<Date>;
   open: boolean;
 }
 
@@ -40,7 +41,7 @@ export class ClickCounter extends React.Component<
   constructor(props: ClickCounterProps) {
     super(props);
     this.defaultTitle = `Counter #${this.props.idx}`;
-    this.state = { records: [], title: undefined, open: false };
+    this.state = { records: Immutable.List(), open: false };
 
     this.addCount = this.addCount.bind(this);
     this.setTitle = this.setTitle.bind(this);
@@ -49,6 +50,10 @@ export class ClickCounter extends React.Component<
     this.setClose = this.setClose.bind(this);
     this.handleOk = this.handleOk.bind(this);
     this.removeSelf = this.removeSelf.bind(this);
+  }
+
+  getRecords(): Immutable.List<Date> {
+    return this.state.records;
   }
 
   render() {
@@ -78,7 +83,7 @@ export class ClickCounter extends React.Component<
                     fontWeight="bold"
                     transform="translate(0 1)"
                   >
-                    {this.state.records.length}
+                    {this.state.records.size}
                   </text>
                   <text
                     x="50%"
@@ -90,7 +95,7 @@ export class ClickCounter extends React.Component<
                     opacity="0.3"
                     transform="translate(0 10)"
                   >
-                    {this.state.records.length}
+                    {this.state.records.size}
                   </text>
                 </svg>
               </Box>
@@ -157,18 +162,16 @@ export class ClickCounter extends React.Component<
 
   addCount() {
     this.setState((state) => {
-      const count = state.records.concat(new Date());
-      return { records: count };
+      return { records: state.records.push(new Date()) };
     });
   }
 
   reduceCount() {
-    if (this.state.records.length === 0) {
+    if (this.state.records.size === 0) {
       return;
     }
     this.setState((state) => {
-      const count = state.records.slice(0, -1);
-      return { records: count };
+      return { records: state.records.pop() };
     });
   }
 
