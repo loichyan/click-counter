@@ -23,12 +23,14 @@ import dateFormat from "dateformat";
 
 export interface ClickCounterProps {
   idx: number;
-  removeCounter(idx: number): void;
+  records: Immutable.List<Date>;
+  pushRecord(date: Date): void;
+  popRecord(): void;
+  removeSelf(): void;
 }
 
-export interface ClickCounterState {
+interface ClickCounterState {
   title?: string;
-  records: Immutable.List<Date>;
   open: boolean;
 }
 
@@ -41,26 +43,22 @@ export class ClickCounter extends React.Component<
   constructor(props: ClickCounterProps) {
     super(props);
     this.defaultTitle = `Counter #${this.props.idx}`;
-    this.state = { records: Immutable.List(), open: false };
+    this.state = { open: false };
 
-    this.addCount = this.addCount.bind(this);
+    this.addRecord = this.addRecord.bind(this);
     this.setTitle = this.setTitle.bind(this);
-    this.reduceCount = this.reduceCount.bind(this);
+    this.popRecord = this.popRecord.bind(this);
     this.setOpen = this.setOpen.bind(this);
     this.setClose = this.setClose.bind(this);
     this.handleOk = this.handleOk.bind(this);
     this.removeSelf = this.removeSelf.bind(this);
   }
 
-  getRecords(): Immutable.List<Date> {
-    return this.state.records;
-  }
-
   render() {
     return (
       <Box>
         <Card>
-          <CardActionArea onClick={this.addCount}>
+          <CardActionArea onClick={this.addRecord}>
             <CardMedia>
               <Box width="9rem" height="5rem" bgcolor={colors.teal[400]}>
                 <svg width="100%" height="100%" viewBox="0 0 100 100">
@@ -83,7 +81,7 @@ export class ClickCounter extends React.Component<
                     fontWeight="bold"
                     transform="translate(0 1)"
                   >
-                    {this.state.records.size}
+                    {this.props.records.size}
                   </text>
                   <text
                     x="50%"
@@ -95,7 +93,7 @@ export class ClickCounter extends React.Component<
                     opacity="0.3"
                     transform="translate(0 10)"
                   >
-                    {this.state.records.size}
+                    {this.props.records.size}
                   </text>
                 </svg>
               </Box>
@@ -109,7 +107,7 @@ export class ClickCounter extends React.Component<
                 </Typography>
               </Box>
               <Box color="text.secondary">
-                {this.state.records
+                {this.props.records
                   .map((v, k): [Date, number] => [v, k])
                   .slice(-3)
                   .map(([record, idx]) => (
@@ -130,7 +128,7 @@ export class ClickCounter extends React.Component<
                 </IconButton>
               </Grid>
               <Grid container item xs justify="flex-end">
-                <IconButton aria-label="backspace" onClick={this.reduceCount}>
+                <IconButton aria-label="backspace" onClick={this.popRecord}>
                   <Backspace />
                 </IconButton>
               </Grid>
@@ -160,40 +158,28 @@ export class ClickCounter extends React.Component<
     );
   }
 
-  addCount() {
-    this.setState((state) => {
-      return { records: state.records.push(new Date()) };
-    });
+  addRecord() {
+    this.props.pushRecord(new Date());
   }
 
-  reduceCount() {
-    if (this.state.records.size === 0) {
-      return;
-    }
-    this.setState((state) => {
-      return { records: state.records.pop() };
-    });
+  popRecord() {
+    this.props.popRecord();
   }
 
   setTitle(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState(() => {
-      if (e.target.value.length === 0) {
-        return { title: undefined };
-      }
-      return { title: e.target.value };
-    });
+    if (e.target.value.length === 0) {
+      this.setState({ title: undefined });
+      return;
+    }
+    this.setState({ title: e.target.value });
   }
 
   setOpen() {
-    this.setState(() => ({
-      open: true,
-    }));
+    this.setState({ open: true });
   }
 
   setClose() {
-    this.setState(() => ({
-      open: false,
-    }));
+    this.setState({ open: false });
   }
 
   handleOk() {
@@ -201,7 +187,7 @@ export class ClickCounter extends React.Component<
   }
 
   removeSelf() {
-    this.props.removeCounter(this.props.idx);
+    this.props.removeSelf();
     this.setClose();
   }
 }

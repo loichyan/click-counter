@@ -8,9 +8,10 @@ import {
   Theme,
 } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@material-ui/lab";
-import { Add, ClearAll } from "@material-ui/icons";
-import { ClickCounter, ClickCounterProps } from "./ClickCounter";
+import { Add, ClearAll, Share } from "@material-ui/icons";
+import ClickCounter from "./ClickCounter";
 import Immutable from "immutable";
+import dateFormat from "dateformat";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -23,11 +24,8 @@ const styles = (theme: Theme) =>
 
 export interface AppProps extends WithStyles<typeof styles> {}
 
-export interface AppState {
-  counters: Immutable.Map<
-    number,
-    React.ComponentElement<ClickCounterProps, ClickCounter>
-  >;
+interface AppState {
+  records: Immutable.OrderedMap<number, Immutable.List<Date>>;
   open: boolean;
 }
 
@@ -37,7 +35,7 @@ export class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      counters: Immutable.Map(),
+      records: Immutable.OrderedMap(),
       open: false,
     };
 
@@ -46,6 +44,25 @@ export class App extends React.Component<AppProps, AppState> {
     this.setOpen = this.setOpen.bind(this);
     this.setClose = this.setClose.bind(this);
     this.clearCounters = this.clearCounters.bind(this);
+    this.export = this.export.bind(this);
+  }
+
+  pushRecord(idx: number, date: Date) {
+    this.setState((state) => ({
+      records: state.records.update(idx, (records) => records.push(date)),
+    }));
+  }
+
+  popRecord(idx: number) {
+    this.setState((state) => ({
+      records: state.records.update(idx, (records) => records.pop()),
+    }));
+  }
+
+  removeCounter(idx: number) {
+    this.setState((state) => {
+      return { records: state.records.delete(idx) };
+    });
   }
 
   componentDidMount() {
@@ -58,9 +75,17 @@ export class App extends React.Component<AppProps, AppState> {
     return (
       <Container>
         <Grid container justify="center" spacing={2}>
-          {[...this.state.counters].map(([idx, counter]) => (
-            <React.Fragment key={idx}>
-              <Grid item>{counter}</Grid>
+          {[...this.state.records].map(([counter, records]) => (
+            <React.Fragment key={counter}>
+              <Grid item>
+                <ClickCounter
+                  idx={counter}
+                  records={records}
+                  pushRecord={(date) => this.pushRecord(counter, date)}
+                  popRecord={() => this.popRecord(counter)}
+                  removeSelf={() => this.removeCounter(counter)}
+                />
+              </Grid>
             </React.Fragment>
           ))}
         </Grid>
@@ -82,37 +107,30 @@ export class App extends React.Component<AppProps, AppState> {
             icon={<ClearAll />}
             onClick={this.clearCounters}
           />
+          <SpeedDialAction
+            tooltipTitle="Export"
+            icon={<Share />}
+            onClick={this.export}
+          />
         </SpeedDial>
       </Container>
     );
   }
 
   addCounter() {
+    this.counterNum += 1;
     this.setState((state) => {
-      this.counterNum += 1;
       return {
-        counters: state.counters.set(
-          this.counterNum,
-          <ClickCounter
-            idx={this.counterNum}
-            removeCounter={this.removeCounter}
-          />
-        ),
+        records: state.records.set(this.counterNum, Immutable.List()),
       };
     });
   }
 
-  removeCounter(idx: number) {
-    this.setState((state) => {
-      return { counters: state.counters.delete(idx) };
-    });
-  }
-
   clearCounters() {
+    this.counterNum = 0;
     this.setState(
       (state) => {
-        this.counterNum = 0;
-        return { counters: state.counters.clear() };
+        return { records: state.records.clear() };
       },
       () => {
         this.addCounter();
@@ -122,11 +140,26 @@ export class App extends React.Component<AppProps, AppState> {
   }
 
   setOpen() {
-    this.setState(() => ({ open: true }));
+    this.setState({ open: true });
   }
 
   setClose() {
-    this.setState(() => ({ open: false }));
+    this.setState({ open: false });
+  }
+
+  export() {
+    const blob = new Blob([JSON.stringify(this.state.records)], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `${dateFormat(new Date(), "yyyy-mm-dd-HH-MM-ss")}.json`
+    );
+    link.click();
+    this.setClose();
   }
 }
 
