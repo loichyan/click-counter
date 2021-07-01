@@ -18,6 +18,7 @@ import {
 } from "@material-ui/core";
 import { Backspace, Settings } from "@material-ui/icons";
 import React from "react";
+import dateFormat from "dateformat";
 
 interface ClickCounterProps {
   idx: number;
@@ -25,7 +26,7 @@ interface ClickCounterProps {
 
 interface ClickCounterState {
   title: string;
-  count: number;
+  records: Array<Date>;
   open: boolean;
 }
 
@@ -38,7 +39,7 @@ export default class ClickCounter extends React.Component<
   constructor(props: ClickCounterProps) {
     super(props);
     this.defaultTitle = `Counter #${this.props.idx}`;
-    this.state = { count: 0, title: this.defaultTitle, open: false };
+    this.state = { records: [], title: this.defaultTitle, open: false };
 
     this.addCount = this.addCount.bind(this);
     this.setTitle = this.setTitle.bind(this);
@@ -53,16 +54,12 @@ export default class ClickCounter extends React.Component<
       <Card>
         <CardActionArea onClick={this.addCount}>
           <CardMedia>
-            <Box
-              color={colors.common.white}
-              width="10rem"
-              height="5rem"
-              bgcolor={colors.teal[400]}
-            >
+            <Box width="10rem" height="5rem" bgcolor={colors.teal[400]}>
               <svg width="100%" height="100%" viewBox="0 0 100 100">
                 <style type="text/css">
                   {`
                     .countText {
+                      color: ${colors.common.white};
                       fill: currentColor;
                       stroke: currentColor;
                       text-anchor: middle;
@@ -78,7 +75,7 @@ export default class ClickCounter extends React.Component<
                   fontWeight="bold"
                   transform="translate(0 1)"
                 >
-                  {this.state.count}
+                  {this.state.records.length}
                 </text>
                 <text
                   x="50%"
@@ -90,15 +87,25 @@ export default class ClickCounter extends React.Component<
                   opacity="0.3"
                   transform="translate(0 10)"
                 >
-                  {this.state.count}
+                  {this.state.records.length}
                 </text>
               </svg>
             </Box>
           </CardMedia>
           <CardContent>
-            <Typography variant="body1" style={{ fontWeight: "bold" }}>
-              {this.state.title}
-            </Typography>
+            <Box color="text.primary">
+              <Typography variant="body1">{this.state.title}</Typography>
+            </Box>
+            <Box color="text.secondary">
+              {this.state.records
+                .map((v, k) => [v, k])
+                .slice(-3)
+                .map(([record, idx]) => (
+                  <Typography variant="body1">
+                    {`${dateFormat(record, "hh:mm:ss")} #${idx}`}
+                  </Typography>
+                ))}
+            </Box>
           </CardContent>
         </CardActionArea>
         <CardActions>
@@ -136,16 +143,16 @@ export default class ClickCounter extends React.Component<
   }
 
   addCount() {
-    const count = this.state.count + 1;
-    this.setState({ count });
+    const count = this.state.records.concat(new Date());
+    this.setState({ records: count });
   }
 
   reduceCount() {
-    if (this.state.count === 0) {
+    if (this.state.records.length === 0) {
       return;
     }
-    const count = this.state.count - 1;
-    this.setState({ count });
+    const count = this.state.records.slice(0, -1);
+    this.setState({ records: count });
   }
 
   setTitle(e: React.ChangeEvent<HTMLInputElement>) {
