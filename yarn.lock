@@ -923,9 +923,9 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/plugin-transform-typescript@^7.12.1":
+"@babel/plugin-transform-typescript@^7.12.1", "@babel/plugin-transform-typescript@^7.14.5", "@babel/plugin-transform-typescript@^7.14.6":
   version "7.14.6"
-  resolved "https://registry.nlark.com/@babel/plugin-transform-typescript/download/@babel/plugin-transform-typescript-7.14.6.tgz?cache=0&sync_timestamp=1623708221065&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40babel%2Fplugin-transform-typescript%2Fdownload%2F%40babel%2Fplugin-transform-typescript-7.14.6.tgz#6e9c2d98da2507ebe0a883b100cde3c7279df36c"
+  resolved "https://registry.nlark.com/@babel/plugin-transform-typescript/download/@babel/plugin-transform-typescript-7.14.6.tgz#6e9c2d98da2507ebe0a883b100cde3c7279df36c"
   integrity sha1-bpwtmNolB+vgqIOxAM3jxyed82w=
   dependencies:
     "@babel/helper-create-class-features-plugin" "^7.14.6"
@@ -1142,6 +1142,15 @@
     "@babel/helper-plugin-utils" "^7.10.4"
     "@babel/plugin-transform-typescript" "^7.12.1"
 
+"@babel/preset-typescript@^7.14.5":
+  version "7.14.5"
+  resolved "https://registry.nlark.com/@babel/preset-typescript/download/@babel/preset-typescript-7.14.5.tgz#aa98de119cf9852b79511f19e7f44a2d379bcce0"
+  integrity sha1-qpjeEZz5hSt5UR8Z5/RKLTebzOA=
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.14.5"
+    "@babel/helper-validator-option" "^7.14.5"
+    "@babel/plugin-transform-typescript" "^7.14.5"
+
 "@babel/runtime-corejs3@^7.10.2":
   version "7.14.7"
   resolved "https://registry.nlark.com/@babel/runtime-corejs3/download/@babel/runtime-corejs3-7.14.7.tgz?cache=0&sync_timestamp=1624313017816&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40babel%2Fruntime-corejs3%2Fdownload%2F%40babel%2Fruntime-corejs3-7.14.7.tgz#0ef292bbce40ca00f874c9724ef175a12476465c"
@@ -1238,6 +1247,20 @@
     js-yaml "^3.13.1"
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
+
+"@felangel/bloc@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.nlark.com/@felangel/bloc/download/@felangel/bloc-0.3.0.tgz#efe87ec354c929dacc19526afc9169cac89b2785"
+  integrity sha1-7+h+w1TJKdrMGVJq/JFpysibJ4U=
+
+"@felangel/react-bloc@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.nlark.com/@felangel/react-bloc/download/@felangel/react-bloc-0.3.0.tgz#78b3f7219480225f621b386f30276fc3497f60c4"
+  integrity sha1-eLP3IZSAIl9iGzhvMCdvw0l/YMQ=
+  dependencies:
+    "@felangel/bloc" "^0.3.0"
+    react "^16.9.0"
+    rxjs "^6.5.2"
 
 "@hapi/address@2.x.x":
   version "2.1.4"
@@ -9361,6 +9384,15 @@ react-transition-group@^4.4.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
+react@^16.9.0:
+  version "16.14.0"
+  resolved "https://registry.nlark.com/react/download/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
+  integrity sha1-lNd23dCqo32j7aj8W2sYpMmjEU0=
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+
 react@^17.0.2:
   version "17.0.2"
   resolved "https://registry.nlark.com/react/download/react-17.0.2.tgz?cache=0&sync_timestamp=1624897251851&other_urls=https%3A%2F%2Fregistry.nlark.com%2Freact%2Fdownload%2Freact-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
@@ -9775,6 +9807,13 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   integrity sha1-6Eg5bwV9Ij8kOGkkYY4laUFh7Ec=
   dependencies:
     aproba "^1.1.1"
+
+rxjs@^6.5.2:
+  version "6.6.7"
+  resolved "https://registry.nlark.com/rxjs/download/rxjs-6.6.7.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Frxjs%2Fdownload%2Frxjs-6.6.7.tgz#90ac018acabf491bf65044235d5863c4dab804c9"
+  integrity sha1-kKwBisq/SRv2UEQjXVhjxNq4BMk=
+  dependencies:
+    tslib "^1.9.0"
 
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
@@ -10815,7 +10854,7 @@ tsconfig-paths@^3.9.0:
     minimist "^1.2.0"
     strip-bom "^3.0.0"
 
-tslib@^1.8.1:
+tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.nlark.com/tslib/download/tslib-1.14.1.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ftslib%2Fdownload%2Ftslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha1-zy04vcNKE0vK8QkcQfZhni9nLQA=
