@@ -14,15 +14,18 @@ export class CounterView extends React.PureComponent {
             <MUI.Grid container justify="center" spacing={2}>
               {state.counters
                 .filter((val) => val instanceof BLOC.CounterBlocInner)
-                .map((counterBloc, counter) => (
-                  <React.Fragment key={counter}>
-                    <MUI.Grid item>
-                      <BLOC.CounterBloc.Provider create={() => counterBloc!}>
-                        <Counter idx={counter} />
-                      </BLOC.CounterBloc.Provider>
-                    </MUI.Grid>
-                  </React.Fragment>
-                ))}
+                .map((val) => {
+                  const counterBloc = val!;
+                  return (
+                    <React.Fragment key={counterBloc.idx}>
+                      <MUI.Grid item>
+                        <BLOC.CounterBloc.Provider create={() => counterBloc!}>
+                          <Counter />
+                        </BLOC.CounterBloc.Provider>
+                      </MUI.Grid>
+                    </React.Fragment>
+                  );
+                })}
             </MUI.Grid>
           )}
         />
@@ -31,16 +34,12 @@ export class CounterView extends React.PureComponent {
   }
 }
 
-interface CounterProps {
-  idx: number;
-}
-
 interface CounterState {
   open: boolean;
 }
 
-class Counter extends React.PureComponent<CounterProps, CounterState> {
-  constructor(props: CounterProps) {
+class Counter extends React.PureComponent<{}, CounterState> {
+  constructor(props: {}) {
     super(props);
     this.state = { open: false };
 
@@ -103,7 +102,7 @@ class Counter extends React.PureComponent<CounterProps, CounterState> {
                       builder={(titleBloc) => (
                         <MUI.TextField
                           fullWidth
-                          label={`Counter #${this.props.idx}`}
+                          label={titleBloc.defaultTitle}
                           defaultValue={titleBloc.state}
                           onChange={(e) => titleBloc.setTitle(e.target.value)}
                         ></MUI.TextField>
@@ -111,13 +110,20 @@ class Counter extends React.PureComponent<CounterProps, CounterState> {
                     />
                   </MUI.DialogContent>
                   <MUI.DialogActions>
-                    <MUI.Button
-                      color="secondary"
-                      size="medium"
-                      // onClick={this.removeSelf}
-                    >
-                      Delete
-                    </MUI.Button>
+                    <BLOC.CounterViewBloc.WithContext
+                      builder={(counterViewBloc) => (
+                        <MUI.Button
+                          color="secondary"
+                          size="medium"
+                          onClick={() => {
+                            counterViewBloc.removeCounter(counterBloc.idx);
+                            this.setClose();
+                          }}
+                        >
+                          Delete
+                        </MUI.Button>
+                      )}
+                    />
                     <MUI.Button
                       color="primary"
                       size="medium"
@@ -203,9 +209,11 @@ class CounterInfo extends React.PureComponent {
     return (
       <MUI.Box>
         <BLOC.TitleBloc.Builder
-          builder={(title) => (
+          builder={(title, titleBloc) => (
             <MUI.Box color="text.primary">
-              <MUI.Typography variant="body1">{title}</MUI.Typography>
+              <MUI.Typography variant="body1">
+                {title || titleBloc.defaultTitle}
+              </MUI.Typography>
             </MUI.Box>
           )}
         />

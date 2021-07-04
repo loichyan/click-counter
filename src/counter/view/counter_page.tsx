@@ -89,10 +89,15 @@ class CounterPageInner extends React.PureComponent<
   export() {
     const data = this.counterViewBloc.state.counters
       .filter((val) => val instanceof BLOC.CounterBlocInner)
-      .map((val) => ({
-        title: val!.state.title.state,
-        records: val!.state.records.state,
-      }));
+      .map((val) => {
+        const counterBloc = val!;
+        return {
+          title:
+            counterBloc.state.title.state ||
+            counterBloc.state.title.defaultTitle,
+          records: counterBloc.state.records.state,
+        };
+      });
     const dataStr = JSON.stringify(data);
 
     console.info(`${dataStr}`);
@@ -107,7 +112,7 @@ class CounterPageInner extends React.PureComponent<
       "download",
       `${dateFormat(new Date(), "yyyy-mm-dd-HH-MM-ss")}.json`
     );
-    // link.click();
+    link.click();
     this.setClose();
   }
 }
