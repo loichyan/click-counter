@@ -24,13 +24,17 @@ export function BlocWithContext<
   };
 
   abstract class ContextBloc extends Base {
-    static readonly Context = React.createContext<B | NullContext>(
+    private static readonly _contextType = React.createContext<B | NullContext>(
       new NullContext()
     );
 
+    static get contextType() {
+      return ContextBloc._contextType as React.Context<B>;
+    }
+
     static readonly WithContext = class extends React.PureComponent<WithContextProps> {
-      static contextType = ContextBloc.Context;
-      context!: React.ContextType<typeof ContextBloc.Context>;
+      static contextType = ContextBloc._contextType;
+      context!: React.ContextType<typeof ContextBloc._contextType>;
 
       render() {
         if (this.context instanceof NullContext) {
@@ -45,9 +49,10 @@ export function BlocWithContext<
     static readonly Provider = class extends React.PureComponent<ProviderProps> {
       render() {
         return (
-          <ContextBloc.Context.Provider value={this.props.create()}>
+          // eslint-disable-next-line react/jsx-pascal-case
+          <ContextBloc._contextType.Provider value={this.props.create()}>
             {this.props.children}
-          </ContextBloc.Context.Provider>
+          </ContextBloc._contextType.Provider>
         );
       }
     };

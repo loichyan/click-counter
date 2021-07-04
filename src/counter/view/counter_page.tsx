@@ -7,6 +7,27 @@ import dateFormat from "dateformat";
 import * as BLOC from "../bloc";
 import { CounterView } from "./counter_view";
 
+export class CounterPage extends React.PureComponent {
+  private readonly counterViewBloc = new BLOC.CounterViewBlocInner();
+
+  componentDidMount() {
+    this.counterViewBloc.addCounter();
+  }
+
+  render() {
+    return (
+      <BLOC.CounterViewBloc.Provider create={() => this.counterViewBloc}>
+        <React.Fragment>
+          <MUI.Container>
+            <CounterView />
+          </MUI.Container>
+          <SpeedDial />
+        </React.Fragment>
+      </BLOC.CounterViewBloc.Provider>
+    );
+  }
+}
+
 const styles = (theme: MUI.Theme) =>
   MUI.createStyles({
     speedDial: {
@@ -16,34 +37,27 @@ const styles = (theme: MUI.Theme) =>
     },
   });
 
-export interface CounterPageProps extends MUI.WithStyles<typeof styles> {}
+export interface SpeedDialProps extends MUI.WithStyles<typeof styles> {}
 
-interface CounterPageState {
-  open: boolean;
+interface SpeedDialState {
+  readonly open: boolean;
 }
 
-class CounterPageInner extends React.PureComponent<
-  CounterPageProps,
-  CounterPageState
+class SpeedDialInner extends React.PureComponent<
+  SpeedDialProps,
+  SpeedDialState
 > {
-  private readonly counterViewBloc;
+  static readonly contextType = BLOC.CounterViewBloc.contextType;
+  readonly context!: React.ContextType<typeof BLOC.CounterViewBloc.contextType>;
 
-  constructor(props: CounterPageProps) {
+  constructor(props: SpeedDialProps) {
     super(props);
-    this.state = {
-      open: false,
-    };
 
-    this.counterViewBloc = new BLOC.CounterViewBlocInner();
-    this.counterViewBloc.addCounter();
-
-    this.setOpen = this.setOpen.bind(this);
-    this.setClose = this.setClose.bind(this);
-    this.export = this.export.bind(this);
+    this.state = { open: false };
   }
 
-  exportData() {
-    return this.counterViewBloc.state.counters
+  exportData = () => {
+    return this.context.state.counters
       .filter((val) => val instanceof BLOC.CounterBlocInner)
       .map((val) => {
         const counterBloc = val!;
@@ -55,57 +69,54 @@ class CounterPageInner extends React.PureComponent<
         };
       })
       .toJSON();
-  }
+  };
 
   render() {
     const { classes } = this.props;
 
     return (
-      <BLOC.CounterViewBloc.Provider create={() => this.counterViewBloc}>
-        <MUI.Container>
-          <CounterView />
-          <MUI2.SpeedDial
-            ariaLabel="speed dial"
-            className={classes.speedDial}
-            icon={<MUI2.SpeedDialIcon />}
-            open={this.state.open}
-            onOpen={this.setOpen}
-            onClose={this.setClose}
-          >
-            <MUI2.SpeedDialAction
-              tooltipTitle="Add"
-              icon={<ICONS.Add />}
-              onClick={this.counterViewBloc.addCounter}
-            />
-            <MUI2.SpeedDialAction
-              tooltipTitle="Clear"
-              icon={<ICONS.ClearAll />}
-              onClick={() => {
-                this.counterViewBloc.clearCounter();
-                this.counterViewBloc.addCounter();
-                this.setClose();
-              }}
-            />
-            <MUI2.SpeedDialAction
-              tooltipTitle="Export"
-              icon={<ICONS.Share />}
-              onClick={this.export}
-            />
-          </MUI2.SpeedDial>
-        </MUI.Container>
-      </BLOC.CounterViewBloc.Provider>
+      <React.Fragment>
+        <MUI2.SpeedDial
+          ariaLabel="speed dial"
+          className={classes.speedDial}
+          icon={<MUI2.SpeedDialIcon />}
+          open={this.state.open}
+          onOpen={this.setOpen}
+          onClose={this.setClose}
+        >
+          <MUI2.SpeedDialAction
+            tooltipTitle="Add"
+            icon={<ICONS.Add />}
+            onClick={this.context.addCounter}
+          />
+          <MUI2.SpeedDialAction
+            tooltipTitle="Clear"
+            icon={<ICONS.ClearAll />}
+            onClick={() => {
+              this.context.clearCounter();
+              this.context.addCounter();
+              this.setClose();
+            }}
+          />
+          <MUI2.SpeedDialAction
+            tooltipTitle="Export"
+            icon={<ICONS.Share />}
+            onClick={this.export}
+          />
+        </MUI2.SpeedDial>
+      </React.Fragment>
     );
   }
 
-  setOpen() {
+  setOpen = () => {
     this.setState({ open: true });
-  }
+  };
 
-  setClose() {
+  setClose = () => {
     this.setState({ open: false });
-  }
+  };
 
-  export() {
+  export = () => {
     const data = this.exportData();
     const dataStr = JSON.stringify(data);
 
@@ -123,7 +134,7 @@ class CounterPageInner extends React.PureComponent<
     );
     link.click();
     this.setClose();
-  }
+  };
 }
 
-export const CounterPage = MUI.withStyles(styles)(CounterPageInner);
+const SpeedDial = MUI.withStyles(styles)(SpeedDialInner);

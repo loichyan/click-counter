@@ -8,7 +8,7 @@ import * as BLOC from "../bloc";
 export class CounterView extends React.PureComponent {
   render() {
     return (
-      <MUI.Box>
+      <React.Fragment>
         <BLOC.CounterViewBloc.Builder
           builder={(state) => (
             <MUI.Grid container justify="center" spacing={2}>
@@ -29,128 +29,53 @@ export class CounterView extends React.PureComponent {
             </MUI.Grid>
           )}
         />
-      </MUI.Box>
+      </React.Fragment>
     );
   }
 }
 
-interface CounterState {
-  open: boolean;
-}
-
-class Counter extends React.PureComponent<{}, CounterState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = { open: false };
-
-    this.setOpen = this.setOpen.bind(this);
-    this.setClose = this.setClose.bind(this);
-    this.handleOk = this.handleOk.bind(this);
-  }
+class Counter extends React.PureComponent {
+  static readonly contextType = BLOC.CounterBloc.contextType;
+  readonly context!: React.ContextType<typeof BLOC.CounterBloc.contextType>;
 
   render() {
+    const counterBloc = this.context;
+    const recordsBloc = counterBloc.state.records;
+    const titleBloc = counterBloc.state.title;
+
     return (
-      <BLOC.CounterBloc.WithContext
-        builder={(counterBloc) => (
-          <BLOC.RecordsBloc.Provider create={() => counterBloc.state.records}>
-            <BLOC.TitleBloc.Provider create={() => counterBloc.state.title}>
-              <MUI.Box>
-                <MUI.Card>
-                  <BLOC.RecordsBloc.WithContext
-                    builder={(recordsBloc) => (
-                      <MUI.CardActionArea
-                        onClick={() => recordsBloc.pushRecord()}
-                      >
-                        <MUI.CardMedia>
-                          <CounterNum />
-                        </MUI.CardMedia>
-                        <MUI.CardContent>
-                          <CounterInfo />
-                        </MUI.CardContent>
-                      </MUI.CardActionArea>
-                    )}
-                  />
-                  <MUI.CardActions>
-                    <MUI.Grid container direction="row">
-                      <MUI.Grid item>
-                        <MUI.IconButton
-                          aria-label="settings"
-                          onClick={this.setOpen}
-                        >
-                          <ICONS.Settings />
-                        </MUI.IconButton>
-                      </MUI.Grid>
-                      <MUI.Grid container item xs justify="flex-end">
-                        <BLOC.RecordsBloc.WithContext
-                          builder={(recordsBloc) => (
-                            <MUI.IconButton
-                              aria-label="backspace"
-                              onClick={() => recordsBloc.popRecord()}
-                            >
-                              <ICONS.Backspace />
-                            </MUI.IconButton>
-                          )}
-                        />
-                      </MUI.Grid>
-                    </MUI.Grid>
-                  </MUI.CardActions>
-                </MUI.Card>
-                <MUI.Dialog open={this.state.open} onClose={this.setClose}>
-                  <MUI.DialogTitle>Settings</MUI.DialogTitle>
-                  <MUI.DialogContent>
-                    <BLOC.TitleBloc.WithContext
-                      builder={(titleBloc) => (
-                        <MUI.TextField
-                          fullWidth
-                          label={titleBloc.defaultTitle}
-                          defaultValue={titleBloc.state}
-                          onChange={(e) => titleBloc.setTitle(e.target.value)}
-                        ></MUI.TextField>
-                      )}
-                    />
-                  </MUI.DialogContent>
-                  <MUI.DialogActions>
-                    <BLOC.CounterViewBloc.WithContext
-                      builder={(counterViewBloc) => (
-                        <MUI.Button
-                          color="secondary"
-                          size="medium"
-                          onClick={() => {
-                            counterViewBloc.removeCounter(counterBloc.idx);
-                            this.setClose();
-                          }}
-                        >
-                          Delete
-                        </MUI.Button>
-                      )}
-                    />
-                    <MUI.Button
-                      color="primary"
-                      size="medium"
-                      onClick={this.handleOk}
+      <BLOC.RecordsBloc.Provider create={() => recordsBloc}>
+        <BLOC.TitleBloc.Provider create={() => titleBloc}>
+          <React.Fragment>
+            <MUI.Card>
+              <MUI.CardActionArea onClick={() => recordsBloc.pushRecord()}>
+                <MUI.CardMedia>
+                  <CounterNum />
+                </MUI.CardMedia>
+                <MUI.CardContent>
+                  <CounterInfo />
+                </MUI.CardContent>
+              </MUI.CardActionArea>
+              <MUI.CardActions>
+                <MUI.Grid container direction="row">
+                  <MUI.Grid item>
+                    <Settings />
+                  </MUI.Grid>
+                  <MUI.Grid container item xs justify="flex-end">
+                    <MUI.IconButton
+                      aria-label="backspace"
+                      onClick={() => recordsBloc.popRecord()}
                     >
-                      Ok
-                    </MUI.Button>
-                  </MUI.DialogActions>
-                </MUI.Dialog>
-              </MUI.Box>
-            </BLOC.TitleBloc.Provider>
-          </BLOC.RecordsBloc.Provider>
-        )}
-      />
+                      <ICONS.Backspace />
+                    </MUI.IconButton>
+                  </MUI.Grid>
+                </MUI.Grid>
+              </MUI.CardActions>
+            </MUI.Card>
+          </React.Fragment>
+        </BLOC.TitleBloc.Provider>
+      </BLOC.RecordsBloc.Provider>
     );
-  }
-
-  setOpen() {
-    this.setState({ open: true });
-  }
-
-  setClose() {
-    this.setState({ open: false });
-  }
-
-  handleOk() {
-    this.setClose();
   }
 }
 
@@ -236,4 +161,75 @@ class CounterInfo extends React.PureComponent {
       </MUI.Box>
     );
   }
+}
+
+interface SettingsState {
+  readonly open: boolean;
+}
+
+class Settings extends React.PureComponent<{}, SettingsState> {
+  static readonly contextType = BLOC.CounterBloc.contextType;
+  readonly context!: React.ContextType<typeof BLOC.CounterBloc.contextType>;
+
+  constructor(props: {}) {
+    super(props);
+
+    this.state = { open: false };
+  }
+
+  render() {
+    const counterBloc = this.context;
+    const titleBloc = counterBloc.state.title;
+
+    return (
+      <React.Fragment>
+        <MUI.IconButton aria-label="settings" onClick={this.setOpen}>
+          <ICONS.Settings />
+        </MUI.IconButton>
+        <MUI.Dialog open={this.state.open} onClose={this.setClose}>
+          <MUI.DialogTitle>Settings</MUI.DialogTitle>
+          <MUI.DialogContent>
+            (
+            <MUI.TextField
+              fullWidth
+              label={titleBloc.defaultTitle}
+              defaultValue={titleBloc.state}
+              onChange={(e) => titleBloc.setTitle(e.target.value)}
+            ></MUI.TextField>
+          </MUI.DialogContent>
+          <MUI.DialogActions>
+            <BLOC.CounterViewBloc.WithContext
+              builder={(counterViewBloc) => (
+                <MUI.Button
+                  color="secondary"
+                  size="medium"
+                  onClick={() => {
+                    counterViewBloc.removeCounter(counterBloc.idx);
+                    this.setClose();
+                  }}
+                >
+                  Delete
+                </MUI.Button>
+              )}
+            />
+            <MUI.Button color="primary" size="medium" onClick={this.handleOk}>
+              Ok
+            </MUI.Button>
+          </MUI.DialogActions>
+        </MUI.Dialog>
+      </React.Fragment>
+    );
+  }
+
+  setOpen = () => {
+    this.setState({ open: true });
+  };
+
+  setClose = () => {
+    this.setState({ open: false });
+  };
+
+  handleOk = () => {
+    this.setClose();
+  };
 }

@@ -3,7 +3,7 @@ import Immutable from "immutable";
 import { Cubit, CubitWithContext } from "./bloc_util";
 
 export class CounterViewState {
-  counters: Immutable.List<CounterBlocInner | null>;
+  readonly counters: Immutable.List<CounterBlocInner | null>;
 
   constructor(counters?: Immutable.List<CounterBlocInner | null>) {
     this.counters = counters || Immutable.List();
@@ -15,7 +15,7 @@ export class CounterViewBlocInner extends Cubit<CounterViewState> {
     super(new CounterViewState());
   }
 
-  readonly addCounter = () => {
+  addCounter = () => {
     this.emit(
       (state) =>
         new CounterViewState(
@@ -24,18 +24,18 @@ export class CounterViewBlocInner extends Cubit<CounterViewState> {
     );
   };
 
-  readonly removeCounter = (idx: number) => {
+  removeCounter = (idx: number) => {
     this.emit((state) => new CounterViewState(state.counters.set(idx, null)));
   };
 
-  readonly clearCounter = () => {
+  clearCounter = () => {
     this.emit((state) => new CounterViewState(state.counters.clear()));
   };
 }
 
 export class CounterState {
-  records: RecordsBlocInner;
-  title: TitleBlocInner;
+  readonly records: RecordsBlocInner;
+  readonly title: TitleBlocInner;
 
   constructor(defaultTitle: String, records?: Records) {
     this.title = new TitleBlocInner(defaultTitle);
@@ -59,11 +59,11 @@ export class RecordsBlocInner extends Cubit<Records> {
     super(records || Immutable.List());
   }
 
-  readonly pushRecord = (time?: Date) => {
+  pushRecord = (time?: Date) => {
     this.emit((state) => state.push(time || new Date()));
   };
 
-  readonly popRecord = () => {
+  popRecord = () => {
     this.emit((state) => state.pop());
   };
 }
@@ -76,7 +76,7 @@ export class TitleBlocInner extends Cubit<String | null> {
     this.defaultTitle = defaultTitle;
   }
 
-  readonly setTitle = (title: String) => {
+  setTitle = (title: String) => {
     this.emit(() => (title.length === 0 ? null : title));
   };
 }
