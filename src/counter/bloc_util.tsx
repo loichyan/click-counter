@@ -70,13 +70,15 @@ export function BlocWithContext<
   return ContextBloc;
 }
 
-export class Cubit<S> extends Bloc<S, S> {
-  async *mapEventToState(state: S) {
-    yield state;
+type Updater<S> = (state: S) => S;
+
+export class Cubit<S> extends Bloc<Updater<S>, S> {
+  async *mapEventToState(updater: Updater<S>) {
+    yield updater(this.state);
   }
 
-  emit(state: S) {
-    this.add(state);
+  emit(updater: (state: S) => S) {
+    this.add(updater);
   }
 }
 
@@ -85,5 +87,5 @@ export function CubitWithContext<
   C extends Cubit<S>,
   T extends new (...args: any[]) => C
 >(Base: T) {
-  return BlocWithContext<S, S, C, T>(Base);
+  return BlocWithContext<Updater<S>, S, C, T>(Base);
 }

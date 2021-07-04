@@ -218,23 +218,20 @@ class CounterInfo extends React.PureComponent {
           )}
         />
         <BLOC.RecordsBloc.Builder
-          builder={(records) => {
-            console.log(records);
-            return (
-              <MUI.Box color="text.secondary">
-                {records
-                  .map((v, k): [Date, number] => [v, k])
-                  .slice(-3)
-                  .map(([record, idx]) => (
-                    <React.Fragment key={idx}>
-                      <MUI.Typography variant="body1">
-                        {`${dateFormat(record, "hh:mm:ss")} #${idx}`}
-                      </MUI.Typography>
-                    </React.Fragment>
-                  ))}
-              </MUI.Box>
-            );
-          }}
+          builder={(records) => (
+            <MUI.Box color="text.secondary">
+              {records
+                .map((v, k): [Date, number] => [v, k])
+                .slice(-3)
+                .map(([record, idx]) => (
+                  <React.Fragment key={idx}>
+                    <MUI.Typography variant="body1">
+                      {`${dateFormat(record, "hh:mm:ss")} #${idx}`}
+                    </MUI.Typography>
+                  </React.Fragment>
+                ))}
+            </MUI.Box>
+          )}
         />
       </MUI.Box>
     );

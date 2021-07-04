@@ -42,6 +42,21 @@ class CounterPageInner extends React.PureComponent<
     this.export = this.export.bind(this);
   }
 
+  exportData() {
+    return this.counterViewBloc.state.counters
+      .filter((val) => val instanceof BLOC.CounterBlocInner)
+      .map((val) => {
+        const counterBloc = val!;
+        return {
+          title:
+            counterBloc.state.title.state ||
+            counterBloc.state.title.defaultTitle,
+          records: counterBloc.state.records.state.toJSON(),
+        };
+      })
+      .toJSON();
+  }
+
   render() {
     const { classes } = this.props;
 
@@ -65,8 +80,11 @@ class CounterPageInner extends React.PureComponent<
             <MUI2.SpeedDialAction
               tooltipTitle="Clear"
               icon={<ICONS.ClearAll />}
-              // TODO: add a new counter after clear
-              onClick={this.counterViewBloc.clearCounter}
+              onClick={() => {
+                this.counterViewBloc.clearCounter();
+                this.counterViewBloc.addCounter();
+                this.setClose();
+              }}
             />
             <MUI2.SpeedDialAction
               tooltipTitle="Export"
@@ -88,20 +106,10 @@ class CounterPageInner extends React.PureComponent<
   }
 
   export() {
-    const data = this.counterViewBloc.state.counters
-      .filter((val) => val instanceof BLOC.CounterBlocInner)
-      .map((val) => {
-        const counterBloc = val!;
-        return {
-          title:
-            counterBloc.state.title.state ||
-            counterBloc.state.title.defaultTitle,
-          records: counterBloc.state.records.state,
-        };
-      });
+    const data = this.exportData();
     const dataStr = JSON.stringify(data);
 
-    console.info(`${dataStr}`);
+    console.info(data);
 
     const blob = new Blob([dataStr], {
       type: "application/json;charset=utf-8",

@@ -17,18 +17,19 @@ export class CounterViewBlocInner extends Cubit<CounterViewState> {
 
   readonly addCounter = () => {
     this.emit(
-      new CounterViewState(
-        this.state.counters.push(new CounterBlocInner(this.state.counters.size))
-      )
+      (state) =>
+        new CounterViewState(
+          this.state.counters.push(new CounterBlocInner(state.counters.size))
+        )
     );
   };
 
   readonly removeCounter = (idx: number) => {
-    this.emit(new CounterViewState(this.state.counters.set(idx, null)));
+    this.emit((state) => new CounterViewState(state.counters.set(idx, null)));
   };
 
   readonly clearCounter = () => {
-    this.emit(new CounterViewState(this.state.counters.clear()));
+    this.emit((state) => new CounterViewState(state.counters.clear()));
   };
 }
 
@@ -46,8 +47,7 @@ export class CounterBlocInner extends Cubit<CounterState> {
   readonly idx: number;
 
   constructor(idx: number, records?: Records) {
-    // TODO: idx + 1
-    super(new CounterState(`Counter #${idx}`, records));
+    super(new CounterState(`Counter #${idx + 1}`, records));
     this.idx = idx;
   }
 }
@@ -60,11 +60,11 @@ export class RecordsBlocInner extends Cubit<Records> {
   }
 
   readonly pushRecord = (time?: Date) => {
-    this.emit(this.state.push(time || new Date()));
+    this.emit((state) => state.push(time || new Date()));
   };
 
   readonly popRecord = () => {
-    this.emit(this.state.pop());
+    this.emit((state) => state.pop());
   };
 }
 
@@ -77,7 +77,7 @@ export class TitleBlocInner extends Cubit<String | null> {
   }
 
   readonly setTitle = (title: String) => {
-    this.emit(title.length === 0 ? null : title);
+    this.emit(() => (title.length === 0 ? null : title));
   };
 }
 
