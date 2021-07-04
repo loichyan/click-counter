@@ -46,6 +46,7 @@ export class CounterBlocInner extends Cubit<CounterState> {
   readonly idx: number;
 
   constructor(idx: number, records?: Records) {
+    // TODO: idx + 1
     super(new CounterState(`Counter #${idx}`, records));
     this.idx = idx;
   }

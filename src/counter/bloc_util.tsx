@@ -14,48 +14,57 @@ export function BlocWithContext<
   B extends Bloc<E, S>,
   T extends { new (...args: any[]): B }
 >(Base: T) {
+  type WithContextProps = { builder(context: B): JSX.Element };
+  type ProviderProps = {
+    create(): B;
+    children: JSX.Element;
+  };
+  type BuilderProps = {
+    builder(state: S, context: B): JSX.Element;
+  };
+
   abstract class ContextBloc extends Base {
-    static readonly ContextType = React.createContext<B | NullContext>(
+    static readonly Context = React.createContext<B | NullContext>(
       new NullContext()
     );
 
-    // TODO: PureComponet?
-    static readonly WithContext = function WithContext(props: {
-      builder(context: B): JSX.Element;
-    }) {
-      const context = React.useContext(ContextBloc.ContextType);
-      if (context instanceof NullContext) {
-        throw Error(
-          `NullContext found, you must run the Provider of ${Base.name} first`
+    static readonly WithContext = class extends React.PureComponent<WithContextProps> {
+      static contextType = ContextBloc.Context;
+      context!: React.ContextType<typeof ContextBloc.Context>;
+
+      render() {
+        if (this.context instanceof NullContext) {
+          throw Error(
+            `NullContext found, you must run the Provider of ${Base.name} first`
+          );
+        }
+        return this.props.builder(this.context);
+      }
+    };
+
+    static readonly Provider = class extends React.PureComponent<ProviderProps> {
+      render() {
+        return (
+          <ContextBloc.Context.Provider value={this.props.create()}>
+            {this.props.children}
+          </ContextBloc.Context.Provider>
         );
       }
-      return props.builder(context);
     };
 
-    static readonly Provider = function Provider(props: {
-      create(): B;
-      children: JSX.Element;
-    }) {
-      return (
-        <ContextBloc.ContextType.Provider value={props.create()}>
-          {props.children}
-        </ContextBloc.ContextType.Provider>
-      );
-    };
-
-    static readonly Builder = function Builder(props: {
-      builder(state: S, context: B): JSX.Element;
-    }) {
-      return (
-        <ContextBloc.WithContext
-          builder={(context) => (
-            <BlocBuilder<B, S>
-              bloc={context}
-              builder={(state) => props.builder(state, context)}
-            />
-          )}
-        />
-      );
+    static readonly Builder = class extends React.PureComponent<BuilderProps> {
+      render() {
+        return (
+          <ContextBloc.WithContext
+            builder={(context) => (
+              <BlocBuilder<B, S>
+                bloc={context}
+                builder={(state) => this.props.builder(state, context)}
+              />
+            )}
+          />
+        );
+      }
     };
   }
   return ContextBloc;

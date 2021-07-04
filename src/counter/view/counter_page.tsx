@@ -65,6 +65,7 @@ class CounterPageInner extends React.PureComponent<
             <MUI2.SpeedDialAction
               tooltipTitle="Clear"
               icon={<ICONS.ClearAll />}
+              // TODO: add a new counter after clear
               onClick={this.counterViewBloc.clearCounter}
             />
             <MUI2.SpeedDialAction
