@@ -189,13 +189,12 @@ class Settings extends React.PureComponent<{}, SettingsState> {
         <MUI.Dialog open={this.state.open} onClose={this.setClose}>
           <MUI.DialogTitle>Settings</MUI.DialogTitle>
           <MUI.DialogContent>
-            (
             <MUI.TextField
               fullWidth
               label={titleBloc.defaultTitle}
               defaultValue={titleBloc.state}
               onChange={(e) => titleBloc.setTitle(e.target.value)}
-            ></MUI.TextField>
+            />
           </MUI.DialogContent>
           <MUI.DialogActions>
             <BLOC.CounterViewBloc.WithContext
