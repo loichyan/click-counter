@@ -8,7 +8,7 @@ class NullContext {
   }
 }
 
-export function BlocWithContext<
+export function makeBlocContext<
   E,
   S,
   B extends Bloc<E, S>,
@@ -23,18 +23,18 @@ export function BlocWithContext<
     builder(state: S, context: B): JSX.Element;
   };
 
-  abstract class ContextBloc extends Base {
+  class Context {
     private static readonly _contextType = React.createContext<B | NullContext>(
       new NullContext()
     );
 
     static get contextType() {
-      return ContextBloc._contextType as React.Context<B>;
+      return Context._contextType as React.Context<B>;
     }
 
-    static readonly WithContext = class extends React.PureComponent<WithContextProps> {
-      static contextType = ContextBloc._contextType;
-      context!: React.ContextType<typeof ContextBloc._contextType>;
+    static readonly WithContext = class WithContext extends React.PureComponent<WithContextProps> {
+      static contextType = Context._contextType;
+      context!: React.ContextType<typeof Context._contextType>;
 
       render() {
         if (this.context instanceof NullContext) {
@@ -46,21 +46,21 @@ export function BlocWithContext<
       }
     };
 
-    static readonly Provider = class extends React.PureComponent<ProviderProps> {
+    static readonly Provider = class Provider extends React.PureComponent<ProviderProps> {
       render() {
         return (
           // eslint-disable-next-line react/jsx-pascal-case
-          <ContextBloc._contextType.Provider value={this.props.create()}>
+          <Context._contextType.Provider value={this.props.create()}>
             {this.props.children}
-          </ContextBloc._contextType.Provider>
+          </Context._contextType.Provider>
         );
       }
     };
 
-    static readonly Builder = class extends React.PureComponent<BuilderProps> {
+    static readonly Builder = class Builder extends React.PureComponent<BuilderProps> {
       render() {
         return (
-          <ContextBloc.WithContext
+          <Context.WithContext
             builder={(context) => (
               <BlocBuilder<B, S>
                 bloc={context}
@@ -71,6 +71,24 @@ export function BlocWithContext<
         );
       }
     };
+  }
+
+  return Context;
+}
+
+export function wrapBlocWithContext<
+  E,
+  S,
+  B extends Bloc<E, S>,
+  T extends { new (...args: any[]): B }
+>(Base: T) {
+  const contextBloc = makeBlocContext<E, S, B, T>(Base);
+
+  abstract class ContextBloc extends Base {
+    static readonly contextType = contextBloc.contextType;
+    static readonly WithContext = contextBloc.WithContext;
+    static readonly Provider = contextBloc.Provider;
+    static readonly Builder = contextBloc.Builder;
   }
   return ContextBloc;
 }
@@ -87,10 +105,18 @@ export class Cubit<S> extends Bloc<Updater<S>, S> {
   }
 }
 
-export function CubitWithContext<
+export function makeCubitContext<
   S,
   C extends Cubit<S>,
   T extends new (...args: any[]) => C
 >(Base: T) {
-  return BlocWithContext<Updater<S>, S, C, T>(Base);
+  return makeBlocContext<Updater<S>, S, C, T>(Base);
+}
+
+export function wrapCubitWithContext<
+  S,
+  C extends Cubit<S>,
+  T extends new (...args: any[]) => C
+>(Base: T) {
+  return wrapBlocWithContext<Updater<S>, S, C, T>(Base);
 }

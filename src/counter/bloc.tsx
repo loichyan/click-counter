@@ -1,16 +1,22 @@
 import Immutable from "immutable";
 
-import { Cubit, CubitWithContext } from "./bloc_util";
+import { Cubit, makeCubitContext } from "./bloc_util";
 
 export class CounterViewState {
-  readonly counters: Immutable.List<CounterBlocInner | null>;
+  readonly counters: Immutable.List<CounterBloc | null>;
 
-  constructor(counters?: Immutable.List<CounterBlocInner | null>) {
+  constructor(counters?: Immutable.List<CounterBloc | null>) {
     this.counters = counters || Immutable.List();
   }
 }
 
-export class CounterViewBlocInner extends Cubit<CounterViewState> {
+export class CounterViewBloc extends Cubit<CounterViewState> {
+  static readonly $ = makeCubitContext<
+    CounterViewState,
+    CounterViewBloc,
+    typeof CounterViewBloc
+  >(CounterViewBloc);
+
   constructor() {
     super(new CounterViewState());
   }
@@ -19,7 +25,7 @@ export class CounterViewBlocInner extends Cubit<CounterViewState> {
     this.emit(
       (state) =>
         new CounterViewState(
-          this.state.counters.push(new CounterBlocInner(state.counters.size))
+          this.state.counters.push(new CounterBloc(state.counters.size))
         )
     );
   };
@@ -34,16 +40,22 @@ export class CounterViewBlocInner extends Cubit<CounterViewState> {
 }
 
 export class CounterState {
-  readonly records: RecordsBlocInner;
-  readonly title: TitleBlocInner;
+  readonly records: RecordsBloc;
+  readonly title: TitleBloc;
 
   constructor(defaultTitle: String, records?: Records) {
-    this.title = new TitleBlocInner(defaultTitle);
-    this.records = new RecordsBlocInner(records);
+    this.title = new TitleBloc(defaultTitle);
+    this.records = new RecordsBloc(records);
   }
 }
 
-export class CounterBlocInner extends Cubit<CounterState> {
+export class CounterBloc extends Cubit<CounterState> {
+  static readonly $ = makeCubitContext<
+    CounterState,
+    CounterBloc,
+    typeof CounterBloc
+  >(CounterBloc);
+
   readonly idx: number;
 
   constructor(idx: number, records?: Records) {
@@ -54,7 +66,13 @@ export class CounterBlocInner extends Cubit<CounterState> {
 
 export type Records = Immutable.List<Date>;
 
-export class RecordsBlocInner extends Cubit<Records> {
+export class RecordsBloc extends Cubit<Records> {
+  static readonly $ = makeCubitContext<
+    Records,
+    RecordsBloc,
+    typeof RecordsBloc
+  >(RecordsBloc);
+
   constructor(records?: Records) {
     super(records || Immutable.List());
   }
@@ -68,7 +86,13 @@ export class RecordsBlocInner extends Cubit<Records> {
   };
 }
 
-export class TitleBlocInner extends Cubit<String | null> {
+export class TitleBloc extends Cubit<String | null> {
+  static readonly $ = makeCubitContext<
+    String | null,
+    TitleBloc,
+    typeof TitleBloc
+  >(TitleBloc);
+
   readonly defaultTitle: String;
 
   constructor(defaultTitle: String) {
@@ -80,27 +104,3 @@ export class TitleBlocInner extends Cubit<String | null> {
     this.emit(() => (title.length === 0 ? null : title));
   };
 }
-
-export const CounterViewBloc = CubitWithContext<
-  CounterViewState,
-  CounterViewBlocInner,
-  typeof CounterViewBlocInner
->(CounterViewBlocInner);
-
-export const CounterBloc = CubitWithContext<
-  CounterState,
-  CounterBlocInner,
-  typeof CounterBlocInner
->(CounterBlocInner);
-
-export const RecordsBloc = CubitWithContext<
-  Records,
-  RecordsBlocInner,
-  typeof RecordsBlocInner
->(RecordsBlocInner);
-
-export const TitleBloc = CubitWithContext<
-  String | null,
-  TitleBlocInner,
-  typeof TitleBlocInner
->(TitleBlocInner);

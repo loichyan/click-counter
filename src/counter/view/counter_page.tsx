@@ -8,7 +8,7 @@ import * as BLOC from "../bloc";
 import { CounterView } from "./counter_view";
 
 export class CounterPage extends React.PureComponent {
-  private readonly counterViewBloc = new BLOC.CounterViewBlocInner();
+  private readonly counterViewBloc = new BLOC.CounterViewBloc();
 
   componentDidMount() {
     this.counterViewBloc.addCounter();
@@ -16,14 +16,14 @@ export class CounterPage extends React.PureComponent {
 
   render() {
     return (
-      <BLOC.CounterViewBloc.Provider create={() => this.counterViewBloc}>
+      <BLOC.CounterViewBloc.$.Provider create={() => this.counterViewBloc}>
         <React.Fragment>
           <MUI.Container>
             <CounterView />
           </MUI.Container>
           <SpeedDial />
         </React.Fragment>
-      </BLOC.CounterViewBloc.Provider>
+      </BLOC.CounterViewBloc.$.Provider>
     );
   }
 }
@@ -47,8 +47,10 @@ class SpeedDialInner extends React.PureComponent<
   SpeedDialProps,
   SpeedDialState
 > {
-  static readonly contextType = BLOC.CounterViewBloc.contextType;
-  readonly context!: React.ContextType<typeof BLOC.CounterViewBloc.contextType>;
+  static readonly contextType = BLOC.CounterViewBloc.$.contextType;
+  readonly context!: React.ContextType<
+    typeof BLOC.CounterViewBloc.$.contextType
+  >;
 
   constructor(props: SpeedDialProps) {
     super(props);
@@ -58,7 +60,7 @@ class SpeedDialInner extends React.PureComponent<
 
   exportData = () => {
     return this.context.state.counters
-      .filter((val) => val instanceof BLOC.CounterBlocInner)
+      .filter((val) => val instanceof BLOC.CounterBloc)
       .map((val) => {
         const counterBloc = val!;
         return {

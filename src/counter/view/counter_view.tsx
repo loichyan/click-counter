@@ -9,19 +9,21 @@ export class CounterView extends React.PureComponent {
   render() {
     return (
       <React.Fragment>
-        <BLOC.CounterViewBloc.Builder
+        <BLOC.CounterViewBloc.$.Builder
           builder={(state) => (
             <MUI.Grid container justify="center" spacing={2}>
               {state.counters
-                .filter((val) => val instanceof BLOC.CounterBlocInner)
+                .filter((val) => val instanceof BLOC.CounterBloc)
                 .map((val) => {
                   const counterBloc = val!;
                   return (
                     <React.Fragment key={counterBloc.idx}>
                       <MUI.Grid item>
-                        <BLOC.CounterBloc.Provider create={() => counterBloc!}>
+                        <BLOC.CounterBloc.$.Provider
+                          create={() => counterBloc!}
+                        >
                           <Counter />
-                        </BLOC.CounterBloc.Provider>
+                        </BLOC.CounterBloc.$.Provider>
                       </MUI.Grid>
                     </React.Fragment>
                   );
@@ -35,8 +37,8 @@ export class CounterView extends React.PureComponent {
 }
 
 class Counter extends React.PureComponent {
-  static readonly contextType = BLOC.CounterBloc.contextType;
-  readonly context!: React.ContextType<typeof BLOC.CounterBloc.contextType>;
+  static readonly contextType = BLOC.CounterBloc.$.contextType;
+  readonly context!: React.ContextType<typeof BLOC.CounterBloc.$.contextType>;
 
   render() {
     const counterBloc = this.context;
@@ -44,8 +46,8 @@ class Counter extends React.PureComponent {
     const titleBloc = counterBloc.state.title;
 
     return (
-      <BLOC.RecordsBloc.Provider create={() => recordsBloc}>
-        <BLOC.TitleBloc.Provider create={() => titleBloc}>
+      <BLOC.RecordsBloc.$.Provider create={() => recordsBloc}>
+        <BLOC.TitleBloc.$.Provider create={() => titleBloc}>
           <React.Fragment>
             <MUI.Card>
               <MUI.CardActionArea onClick={() => recordsBloc.pushRecord()}>
@@ -73,8 +75,8 @@ class Counter extends React.PureComponent {
               </MUI.CardActions>
             </MUI.Card>
           </React.Fragment>
-        </BLOC.TitleBloc.Provider>
-      </BLOC.RecordsBloc.Provider>
+        </BLOC.TitleBloc.$.Provider>
+      </BLOC.RecordsBloc.$.Provider>
     );
   }
 }
@@ -95,7 +97,7 @@ class CounterNum extends React.PureComponent {
               }
             `}
           </style>
-          <BLOC.RecordsBloc.Builder
+          <BLOC.RecordsBloc.$.Builder
             builder={(records) => (
               <g>
                 <text
@@ -133,7 +135,7 @@ class CounterInfo extends React.PureComponent {
   render() {
     return (
       <MUI.Box>
-        <BLOC.TitleBloc.Builder
+        <BLOC.TitleBloc.$.Builder
           builder={(title, titleBloc) => (
             <MUI.Box color="text.primary">
               <MUI.Typography variant="body1">
@@ -142,7 +144,7 @@ class CounterInfo extends React.PureComponent {
             </MUI.Box>
           )}
         />
-        <BLOC.RecordsBloc.Builder
+        <BLOC.RecordsBloc.$.Builder
           builder={(records) => (
             <MUI.Box color="text.secondary">
               {records
@@ -168,8 +170,8 @@ interface SettingsState {
 }
 
 class Settings extends React.PureComponent<{}, SettingsState> {
-  static readonly contextType = BLOC.CounterBloc.contextType;
-  readonly context!: React.ContextType<typeof BLOC.CounterBloc.contextType>;
+  static readonly contextType = BLOC.CounterBloc.$.contextType;
+  readonly context!: React.ContextType<typeof BLOC.CounterBloc.$.contextType>;
 
   constructor(props: {}) {
     super(props);
@@ -197,7 +199,7 @@ class Settings extends React.PureComponent<{}, SettingsState> {
             />
           </MUI.DialogContent>
           <MUI.DialogActions>
-            <BLOC.CounterViewBloc.WithContext
+            <BLOC.CounterViewBloc.$.WithContext
               builder={(counterViewBloc) => (
                 <MUI.Button
                   color="secondary"
