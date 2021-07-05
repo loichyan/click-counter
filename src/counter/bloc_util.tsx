@@ -2,18 +2,17 @@ import { Bloc } from "@felangel/bloc";
 import { BlocBuilder } from "@felangel/react-bloc";
 import React from "react";
 
+type Constructor<T> = new (...args: any[]) => T;
+
 class NullContext {
   toString() {
     return "NullContext";
   }
 }
 
-export function makeBlocContext<
-  E,
-  S,
-  B extends Bloc<E, S>,
-  T extends { new (...args: any[]): B }
->(Base: T) {
+export function makeBlocContext<E, S, B extends Bloc<E, S>>(
+  Target: Constructor<B>
+) {
   type WithContextProps = { builder(context: B): JSX.Element };
   type ProviderProps = {
     create(): B;
@@ -39,7 +38,7 @@ export function makeBlocContext<
       render() {
         if (this.context instanceof NullContext) {
           throw Error(
-            `NullContext found, you must run the Provider of ${Base.name} first`
+            `NullContext found, you must run the Provider of ${Target.name} first`
           );
         }
         return this.props.builder(this.context);
@@ -76,13 +75,10 @@ export function makeBlocContext<
   return Context;
 }
 
-export function wrapBlocWithContext<
-  E,
-  S,
-  B extends Bloc<E, S>,
-  T extends { new (...args: any[]): B }
->(Base: T) {
-  const contextBloc = makeBlocContext<E, S, B, T>(Base);
+export function wrapBlocWithContext<E, S, B extends Bloc<E, S>>(
+  Base: Constructor<B>
+) {
+  const contextBloc = makeBlocContext<E, S, B>(Base);
 
   abstract class ContextBloc extends Base {
     static readonly contextType = contextBloc.contextType;
@@ -100,23 +96,17 @@ export class Cubit<S> extends Bloc<Updater<S>, S> {
     yield updater(this.state);
   }
 
-  emit(updater: (state: S) => S) {
-    this.add(updater);
+  emit(state: Updater<S>) {
+    this.add(state);
   }
 }
 
-export function makeCubitContext<
-  S,
-  C extends Cubit<S>,
-  T extends new (...args: any[]) => C
->(Base: T) {
-  return makeBlocContext<Updater<S>, S, C, T>(Base);
+export function makeCubitContext<S, C extends Cubit<S>>(Base: Constructor<C>) {
+  return makeBlocContext<Updater<S>, S, C>(Base);
 }
 
-export function wrapCubitWithContext<
-  S,
-  C extends Cubit<S>,
-  T extends new (...args: any[]) => C
->(Base: T) {
-  return wrapBlocWithContext<Updater<S>, S, C, T>(Base);
+export function wrapCubitWithContext<S, C extends Cubit<S>>(
+  Base: Constructor<C>
+) {
+  return wrapBlocWithContext<Updater<S>, S, C>(Base);
 }

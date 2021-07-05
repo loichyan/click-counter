@@ -11,11 +11,9 @@ export class CounterViewState {
 }
 
 export class CounterViewBloc extends Cubit<CounterViewState> {
-  static readonly $ = makeCubitContext<
-    CounterViewState,
-    CounterViewBloc,
-    typeof CounterViewBloc
-  >(CounterViewBloc);
+  static readonly $ = makeCubitContext<CounterViewState, CounterViewBloc>(
+    CounterViewBloc
+  );
 
   constructor() {
     super(new CounterViewState());
@@ -50,11 +48,7 @@ export class CounterState {
 }
 
 export class CounterBloc extends Cubit<CounterState> {
-  static readonly $ = makeCubitContext<
-    CounterState,
-    CounterBloc,
-    typeof CounterBloc
-  >(CounterBloc);
+  static readonly $ = makeCubitContext<CounterState, CounterBloc>(CounterBloc);
 
   readonly idx: number;
 
@@ -67,11 +61,7 @@ export class CounterBloc extends Cubit<CounterState> {
 export type Records = Immutable.List<Date>;
 
 export class RecordsBloc extends Cubit<Records> {
-  static readonly $ = makeCubitContext<
-    Records,
-    RecordsBloc,
-    typeof RecordsBloc
-  >(RecordsBloc);
+  static readonly $ = makeCubitContext<Records, RecordsBloc>(RecordsBloc);
 
   constructor(records?: Records) {
     super(records || Immutable.List());
@@ -87,11 +77,7 @@ export class RecordsBloc extends Cubit<Records> {
 }
 
 export class TitleBloc extends Cubit<String | null> {
-  static readonly $ = makeCubitContext<
-    String | null,
-    TitleBloc,
-    typeof TitleBloc
-  >(TitleBloc);
+  static readonly $ = makeCubitContext<String | null, TitleBloc>(TitleBloc);
 
   readonly defaultTitle: String;
 
