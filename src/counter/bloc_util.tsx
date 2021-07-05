@@ -96,8 +96,12 @@ export class Cubit<S> extends Bloc<Updater<S>, S> {
     yield updater(this.state);
   }
 
-  emit(state: Updater<S>) {
-    this.add(state);
+  emit(state: S) {
+    this.emit_with(() => state);
+  }
+
+  emit_with(updater: Updater<S>) {
+    this.add(updater);
   }
 }
 

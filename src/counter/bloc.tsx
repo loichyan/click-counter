@@ -20,7 +20,7 @@ export class CounterViewBloc extends Cubit<CounterViewState> {
   }
 
   addCounter = () => {
-    this.emit(
+    this.emit_with(
       (state) =>
         new CounterViewState(
           this.state.counters.push(new CounterBloc(state.counters.size))
@@ -29,11 +29,13 @@ export class CounterViewBloc extends Cubit<CounterViewState> {
   };
 
   removeCounter = (idx: number) => {
-    this.emit((state) => new CounterViewState(state.counters.set(idx, null)));
+    this.emit_with(
+      (state) => new CounterViewState(state.counters.set(idx, null))
+    );
   };
 
   clearCounter = () => {
-    this.emit((state) => new CounterViewState(state.counters.clear()));
+    this.emit_with((state) => new CounterViewState(state.counters.clear()));
   };
 }
 
@@ -68,11 +70,11 @@ export class RecordsBloc extends Cubit<Records> {
   }
 
   pushRecord = (time?: Date) => {
-    this.emit((state) => state.push(time || new Date()));
+    this.emit_with((state) => state.push(time || new Date()));
   };
 
   popRecord = () => {
-    this.emit((state) => state.pop());
+    this.emit_with((state) => state.pop());
   };
 }
 
@@ -87,6 +89,6 @@ export class TitleBloc extends Cubit<String | null> {
   }
 
   setTitle = (title: String) => {
-    this.emit(() => (title.length === 0 ? null : title));
+    this.emit(title.length === 0 ? null : title);
   };
 }
